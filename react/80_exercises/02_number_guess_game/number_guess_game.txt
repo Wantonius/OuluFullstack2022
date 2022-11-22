@@ -1,0 +1,37 @@
+Numeronarvauspeli
+
+Arvataan numeroa 1-100 väliltä. Peli laskee arvausten määrän. 
+Arvauksen jälkeen peli ilmoittaa, että oliko arvaus liian suuri 
+vai liian pieni. Jos arvaa 75 ja arvaus on liian suuri peli estää
+suuremman luvun arvaamisen ja sama liian pienelle. Peli estää 
+myös 1-100 ulkopuolelta arvaamisen sekä kirjaimet (isNaN toimii). 
+Peli juhlii (päätä miten), kun arvaat oikein. 
+Lisää myös Reset nappula, jolla voi aloittaa  pelin alusta.
+
+Peli toimii kahdella eri sivulla, StartGame ja PlayGame. 
+Asenna Router ja tee start page, missä
+pelaaja antaa nimensä ja siellä on start game nappi. Start game ohjaa
+play game sivulle, missä itse peli pyörii. Pelin tila on App.js komponentissa.
+Siirrä tarvittavat tiedot ja funktiot propseina App.js-tiedostosta StartGame ja PlayGame komponenteille. React routerin Routen element toimii normaalisti
+eli <Route path="/start" element={<StartGame enterName={enterName}/>}/> kun
+siirretään enterName funktio App.js:stä StartGame komponentille. Kuten
+addToList 05_list esimerkissä. Voiton jälkeen palataan StartGame sivulle.
+
+Number Guess Game.
+
+We are guessing a number between 1-100. Game calculates the number of guesses.
+After a guess game informs if the guess was too high or too low. You
+can't guess higher than last "too high" guess or lower than last "too low" guess.
+Also you can't guess non numbers (isNaN() works). When you guess correctly,
+the game tells you the number of guesses used and celebrates. Also create
+a reset button to reset the game.
+
+Game works with two separate pages, StartGame and PlayGame. Install React Router
+and create StartGame and PlayGame. StartGame takes player name and has 
+a button which navigates to PlayGame where game is run. State of the game
+is housed in App.js. The element in Route works like normal so 
+<Route path="/start" element={<StartGame enterName={enterName}/>}/> would
+transfer enterGame function from App.js to StartGame as a prop like
+in example 05_lists and addToList. 
+
+After a win navigate back to StartGame.
