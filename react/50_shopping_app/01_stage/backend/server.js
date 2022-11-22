@@ -32,6 +32,17 @@ app.post("/api/shopping",function(req,res) {
 	return res.status(201).json(item);
 });
 
+app.delete("/api/shopping/:id",function(req,res) {
+	let id = parseInt(req.params.id,10);
+	for(let i=0;i<database.length;i++) {
+		if(database[i].id === id) {
+			database.splice(i,1);
+			return res.status(200).json({message:"Success"});
+		}
+	}
+	return res.status(404).json({message:"Not found"});
+})
+
 app.listen(port);
 
 console.log("Running in port",port);
