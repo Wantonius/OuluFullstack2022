@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import {useEffect,useState} from 'react';
+import ShoppingForm from './components/ShoppingForm';
 function App() {
 	
 	const [state,setState] = useState({
@@ -41,10 +42,18 @@ function App() {
 						return;
 					default:
 						return;
-				}
-				
+				}				
 			} else {
-				
+				switch(urlRequest.action) {
+					case "getlist":
+						console.log("Failed to fetch shopping data. Server responded with a status "+response.status+" "+response.statusText)
+						return;
+					case "additem":
+						console.log("Failed to add new item. Server responded with a status "+response.status+" "+response.statusText)
+						return;
+					default:
+						return;
+				}
 			}
 		}
 		
@@ -76,7 +85,7 @@ function App() {
 	
 	return (
 		<div className="App">
-
+			<ShoppingForm addItem={addItem}/>
 		</div>
 	);
 }
