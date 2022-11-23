@@ -34,6 +34,11 @@ const ShoppingList = (props) => {
 		props.removeItem(id);
 		changeMode("cancel");
 	}
+	
+	const editItem = (item) => {
+		props.editItem(item);
+		changeMode("cancel");
+	}
 
 	let items = props.list.map((item,index) => {
 		if(state.removeIndex === index) {
