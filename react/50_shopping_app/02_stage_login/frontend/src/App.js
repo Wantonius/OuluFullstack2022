@@ -26,10 +26,12 @@ function App() {
 	
 	const setError = (error) => {
 		setState((state) => {
-			return {
+			let tempState = {
 				...state,
 				error:error
 			}
+			saveToStorage(tempState);
+			return tempState;
 		})
 	}
 	
@@ -43,7 +45,35 @@ function App() {
 		})
 	}
 	
+	const clearState = () => {
+		setState((state) => {
+			let tempState = {
+				list:[],
+				isLogged:false,
+				loading:false,
+				error:"",
+				token:""
+			}
+			saveToStorage(tempState);
+			return tempState;
+		})
+	}
+	
+	const saveToStorage = (state) => {
+		sessionStorage.setItem("state",JSON.stringify(state));
+	}
+	
 	//USEEFFECT
+	
+	useEffect(() =>	{
+		if(sessionStorage.getItem("state")) {
+			let tempState = JSON.parse(sessionStorage.getItem("state"));
+			setState(tempState)
+			if(tempState.isLogged) {
+				getList(tempState.token);
+			}
+		}
+	} ,[]);
 	
 	useEffect(() => {
 		
@@ -67,10 +97,12 @@ function App() {
 							return
 						}
 						setState((state) => {
-							return {
+							let tempState = {
 								...state,
 								list:data
 							}
+							saveToStorage(tempState);
+							return tempState;
 						})
 						return;
 					case "additem":
@@ -92,27 +124,28 @@ function App() {
 							return;
 						}
 						setState((state) => {
-							return {
+							let tempState = {
 								...state,
 								token:loginData.token,
 								isLogged:true
 							}
+							saveToStorage(tempState);
+							return tempState;
 						})
 						getList(loginData.token);
 						return;
 					case "logout":
-						setState({
-							list:[],
-							token:"",
-							error:"",
-							isLogged:false,
-							loading:false
-						})
+						clearState();
 						return;
 					default:
 						return;
 				}				
 			} else {
+				if(response.status === 403) {
+					clearState();
+					setError("Your session has expired. Logging you out!");
+					return;
+				}
 				switch(urlRequest.action) {
 					case "getlist":
 						setError("Failed to fetch shopping data. Server responded with a status "+response.status+" "+response.statusText)
@@ -137,13 +170,8 @@ function App() {
 						setError("Login failed. Server responded with a status "+response.status+" "+response.statusText)
 						return;
 					case "logout":
-						setState({
-							list:[],
-							token:"",
-							loading:false,
-							isLogged:false,
-							error:"Server responded with an error. Logging you out!"
-						})
+						clearState();
+						setError("Server responded with an error. Logging you out.");
 						return;
 					default:
 						return;
