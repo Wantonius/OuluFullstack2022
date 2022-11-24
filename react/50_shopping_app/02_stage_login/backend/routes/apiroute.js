@@ -7,7 +7,8 @@ let database = [];
 let id = 100;
 
 router.get("/shopping",function(req,res) {
-	return res.status(200).json(database);
+	let tempDatabase = database.filter(item => item.user === req.session.user)
+	return res.status(200).json(tempDatabase);
 });
 
 router.post("/shopping",function(req,res) {
@@ -15,7 +16,8 @@ router.post("/shopping",function(req,res) {
 		id:id,
 		type:req.body.type,
 		count:req.body.count,
-		price:req.body.price
+		price:req.body.price,
+		user:req.session.user
 	}
 	database.push(item);
 	id++;
@@ -25,7 +27,7 @@ router.post("/shopping",function(req,res) {
 router.delete("/shopping/:id",function(req,res) {
 	let id = parseInt(req.params.id,10);
 	for(let i=0;i<database.length;i++) {
-		if(database[i].id === id) {
+		if(database[i].id === id && database[i].user === req.session.user) {
 			database.splice(i,1);
 			return res.status(200).json({message:"Success"});
 		}
@@ -39,10 +41,11 @@ router.put("/shopping/:id",function(req,res) {
 		id:id,
 		type:req.body.type,
 		count:req.body.count,
-		price:req.body.price
+		price:req.body.price,
+		user:req.session.user
 	}
 	for(let i=0;i<database.length;i++) {
-		if(database[i].id === id) {
+		if(database[i].id === id && database[i].user === req.session.user) {
 			database.splice(i,1,item);
 			return res.status(200).json({message:"Success"});
 		}
