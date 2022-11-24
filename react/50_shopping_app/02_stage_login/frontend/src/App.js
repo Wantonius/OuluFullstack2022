@@ -4,11 +4,16 @@ import {useEffect,useState} from 'react';
 import ShoppingForm from './components/ShoppingForm';
 import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
+import LoginPage from './components/LoginPage';
 import {Route,Routes,Navigate} from 'react-router-dom';
 function App() {
 	
 	const [state,setState] = useState({
-		list:[]
+		list:[],
+		isLogged:false,
+		token:"",
+		loading:false,
+		error:""
 	});
 	
 	const [urlRequest,setUrlRequest] = useState({
@@ -17,13 +22,38 @@ function App() {
 		action:""
 	})
 	
+	//HELPER FUNCTIONS
+	
+	const setError = (error) => {
+		setState((state) => {
+			return {
+				...state,
+				error:error
+			}
+		})
+	}
+	
+	const setLoading = (loading) => {
+		setState((state) => {
+			return {
+				...state,
+				loading:loading,
+				error:""
+			}
+		})
+	}
+	
+	//USEEFFECT
+	
 	useEffect(() => {
 		
 		const fetchData = async () => {
 			if(!urlRequest.url) {
 				return;
 			}
+			setLoading(true);
 			const response = await fetch(urlRequest.url,urlRequest.request);
+			setLoading(false);
 			if(!response) {
 				console.log("Server did not respond");
 				return;
@@ -36,8 +66,11 @@ function App() {
 							console.log("Failed to parse shopping data!");
 							return
 						}
-						setState({
-							list:data
+						setState((state) => {
+							return {
+								...state,
+								list:data
+							}
 						})
 						return;
 					case "additem":
@@ -48,24 +81,70 @@ function App() {
 						return;
 					case "edititem":
 						getList();
-						return;	
+						return;
+					case "register":
+						setError("Register success!");
+						return;
+					case "login":
+						const loginData = await response.json();
+						if(!loginData) {
+							setError("Failed to parse login information. Try again later.");
+							return;
+						}
+						setState((state) => {
+							return {
+								...state,
+								token:loginData.token,
+								isLogged:true
+							}
+						})
+						getList(loginData.token);
+						return;
+					case "logout":
+						setState({
+							list:[],
+							token:"",
+							error:"",
+							isLogged:false,
+							loading:false
+						})
+						return;
 					default:
 						return;
 				}				
 			} else {
 				switch(urlRequest.action) {
 					case "getlist":
-						console.log("Failed to fetch shopping data. Server responded with a status "+response.status+" "+response.statusText)
+						setError("Failed to fetch shopping data. Server responded with a status "+response.status+" "+response.statusText)
 						return;
 					case "additem":
-						console.log("Failed to add new item. Server responded with a status "+response.status+" "+response.statusText)
+						setError("Failed to add new item. Server responded with a status "+response.status+" "+response.statusText)
 						return;
 					case "removeitem":
-						console.log("Failed to remove item. Server responded with a status "+response.status+" "+response.statusText)
+						setError("Failed to remove item. Server responded with a status "+response.status+" "+response.statusText)
 						return;
 					case "edititem":
-						console.log("Failed to edit item. Server responded with a status "+response.status+" "+response.statusText)
-						return;		
+						setError("Failed to edit item. Server responded with a status "+response.status+" "+response.statusText)
+						return;
+					case "register":
+						if(response.status === 409) {
+							setError("Username is already in use");
+							return;
+						}
+						setError("Register failed. Server responded with a status "+response.status+" "+response.statusText)
+						return;
+					case "login":
+						setError("Login failed. Server responded with a status "+response.status+" "+response.statusText)
+						return;
+					case "logout":
+						setState({
+							list:[],
+							token:"",
+							loading:false,
+							isLogged:false,
+							error:"Server responded with an error. Logging you out!"
+						})
+						return;
 					default:
 						return;
 				}
@@ -76,11 +155,57 @@ function App() {
 		
 	},[urlRequest]);
 	
-	const getList = () => {
+	//LOGIN API
+	
+	const register = (user) => {
+		setUrlRequest({
+			url:"/register",
+			request:{
+				method:"POST",
+				headers:{"Content-Type":"application/json"
+				},
+				body:JSON.stringify(user)
+			},
+			action:"register"
+		})
+	}
+	
+	const login = (user) => {
+		setUrlRequest({
+			url:"/login",
+			request:{
+				method:"POST",
+				headers:{"Content-Type":"application/json"
+				},
+				body:JSON.stringify(user)
+			},
+			action:"login"
+		})
+	}
+	
+	const logout = (user) => {
+		setUrlRequest({
+			url:"/logout",
+			request:{
+				method:"POST",
+				headers:{"Content-Type":"application/json",
+						 "token":state.token}
+			},
+			action:"logout"
+		})
+	}	
+	//SHOPPING API
+	
+	const getList = (token) => {
+		let tempToken = state.token;
+		if(token) {
+			tempToken = token
+		}
 		setUrlRequest({
 			url:"/api/shopping",
 			request:{
-				method:"GET"
+				method:"GET",
+				headers:{"token":tempToken}
 			},
 			action:"getlist"
 		})
@@ -91,7 +216,8 @@ function App() {
 			url:"/api/shopping",
 			request:{
 				method:"POST",
-				headers:{"Content-Type":"application/json"},
+				headers:{"Content-Type":"application/json",
+						"token":state.token},
 				body:JSON.stringify(item)
 			},
 			action:"additem"
@@ -102,7 +228,8 @@ function App() {
 		setUrlRequest({
 			url:"/api/shopping/"+id,
 			request:{
-				method:"DELETE"
+				method:"DELETE",
+				headers:{"token":state.token}
 			},
 			action:"removeitem"
 		})
@@ -114,7 +241,8 @@ function App() {
 			request:{
 				method:"PUT",
 				headers:{
-					"Content-Type":"application/json"
+					"Content-Type":"application/json",
+					"token":state.token
 				},
 				body:JSON.stringify(item)
 			},
@@ -122,15 +250,33 @@ function App() {
 		})
 	}
 	
+	//RENDERING
+	
+	let messageArea = <h3> </h3>
+	if(state.loading) {
+		messageArea = <h3>Loading ...</h3>
+	}
+	if(state.error) {
+		messageArea = <h3>{state.error}</h3>
+	}
+	let tempRender = <Routes>
+						<Route exact path="/" element={<LoginPage register={register} login={login} setError={setError}/>}/>
+						<Route path="*" element={<Navigate to="/"/>}/>
+					</Routes>
+	if(state.isLogged) {
+		tempRender = <Routes>
+				<Route path="/list" element={<ShoppingList list={state.list} removeItem={removeItem} editItem={editItem}/>}/>
+				<Route path="/form" element={<ShoppingForm addItem={addItem}/>}/>
+				<Route path="*" element={<Navigate to="/list"/>}/>
+			</Routes>
+	}
+	
 	return (
 		<div className="App">
-			<Navbar/>
+			<Navbar logout={logout} isLogged={state.isLogged}/>
+			{messageArea}
 			<hr/>
-			<Routes>
-				<Route exact path="/" element={<ShoppingList list={state.list} removeItem={removeItem} editItem={editItem}/>}/>
-				<Route path="/form" element={<ShoppingForm addItem={addItem}/>}/>
-				<Route path="*" element={<Navigate to="/"/>}/>
-			</Routes>
+			{tempRender}
 		</div>
 	);
 }
