@@ -3,6 +3,7 @@ const apiroute = require("./routes/apiroute");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
+const userModel = require("./models/user");
 
 let app = express();
 
@@ -29,6 +30,8 @@ mongoose.connect(url).then(
 	() => console.log("Connected to Mongodb"),
 	(err) => console.log("Failed to connect to Mongodb. Reason",err)
 );
+
+mongoose.set("toJSON",{virtuals:true});
 
 //MIDDLEWARE
 
@@ -69,22 +72,27 @@ app.post("/register",function(req,res) {
 	if(req.body.username.length < 4 || req.body.password.length < 8) {
 		return res.status(400).json({message:"Bad request"});
 	}
-	for(let i=0;i<registeredUsers.length;i++) {
-		if(req.body.username === registeredUsers[i].username) {
-			return res.status(409).json({message:"Username is already in use"})
-		}
-	}
 	bcrypt.hash(req.body.password,14,function(err,hash) {
 		if(err) {
 			return res.status(500).json({message:"Internal server error"})
 		}
-		let user = {
+		let user = new userModel({
 			"username":req.body.username,
 			"password":hash
-		}
-		registeredUsers.push(user);
-		console.log(user);
-		return res.status(200).json({message:"Register success!"});
+		})
+		user.save(function(err,user) {
+			if(err) {
+				console.log("Failed to create user. Reason",err);
+				if(err.code === 11000) {
+					return res.status(409).json({message:"Username is already in use"})
+				}
+				return res.status(500).json({message:"Internal server error"})
+			}
+			if(!user) {
+				return res.status(500).json({message:"Internal server error"})
+			}
+			return res.status(201).json({message:"User registered!"})
+		})
 	})
 })
 
