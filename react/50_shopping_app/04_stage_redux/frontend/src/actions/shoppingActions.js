@@ -3,14 +3,18 @@ import * as actionConstants from './actionConstants';
 
 //ASYNC ACTION CREATORS
 
-export const getList = (token) => {
+export const getList = (token,search) => {
 	return async (dispatch) => {
+		let url = "/api/shopping"
+		if(search) {
+			url = url + "?type="+search
+		}
 		let request = {
 			method:"GET",
 			headers:{"token":token}
 		}
 		dispatch(loading());
-		let response = await fetch("/api/shopping",request);
+		let response = await fetch(url,request);
 		dispatch(stopLoading());
 		if(!response) {
 			dispatch(fetchListFailed("Failed loading shopping information. Server never responded. Try again later."))

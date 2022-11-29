@@ -12,6 +12,10 @@ const ShoppingList = (props) => {
 		removeIndex:-1
 	})
 	
+	const [search,setSearch] = useState({
+		type:""
+	})
+	
 	const appState = useSelector(state => state);
 	
 	const dispatch = useDispatch();
@@ -46,6 +50,16 @@ const ShoppingList = (props) => {
 		dispatch(edit(appState.login.token,item));
 		changeMode("cancel");
 	}
+	
+	const onChange = (event) => {
+		setSearch({
+			type:event.target.value
+		})
+	}
+	
+	const searchItems = () => {
+		dispatch(getList(appState.login.token,search.type));
+	}
 
 	let items = appState.shopping.list.map((item,index) => {
 		if(state.editIndex === index) {
@@ -64,6 +78,20 @@ const ShoppingList = (props) => {
 	})
 	
 	return(
+	<>
+		<div style={{
+			width:"30%",
+			margin:"auto"
+		}}>
+			<label htmlFor="type" className="form-label">Search by type</label>
+			<input type="text"
+					name="type"
+					id="type"
+					className="form-control"
+					onChange={onChange}
+					value={search.type}/>
+			<button onClick={searchItems} className="btn btn-primary">Search</button>
+		</div>
 		<table className="table table-striped">
 			<thead>
 				<tr>
@@ -79,6 +107,7 @@ const ShoppingList = (props) => {
 			</tbody>
 		
 		</table>
+	</>
 	)
 }
 
