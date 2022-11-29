@@ -1,4 +1,5 @@
 import * as actionConstants from './actionConstants';
+import {getList} from './shoppingActions';
 
 //ASYNC ACTION CREATORS
 
@@ -48,7 +49,8 @@ export const login = (user) => {
 				dispatch(loginFailed("Failed to parse login information. Login failed."))
 				return;
 			}
-			dispatch(loginSuccess(data.token))
+			dispatch(loginSuccess(data.token));
+			dispatch(getList(data.token));
 		} else {
 			dispatch(loginFailed("Login failed. Server responded with a status "+response.status+" "+response.statusText))
 		}
