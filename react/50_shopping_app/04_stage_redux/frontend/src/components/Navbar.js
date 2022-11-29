@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom';
 import {useSelector,useDispatch} from 'react-redux';
-import {logout} from './actions/loginActions';
+import {logout} from '../actions/loginActions';
 
 const Navbar = (props) => {
 	
