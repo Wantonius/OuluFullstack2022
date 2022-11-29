@@ -6,15 +6,15 @@ import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
 import LoginPage from './components/LoginPage';
 import {Route,Routes,Navigate} from 'react-router-dom';
+import {useSelector} from 'react-redux';
+
 function App() {
 	
 	const [state,setState] = useState({
 		list:[],
-		isLogged:false,
-		token:"",
-		loading:false,
-		error:""
 	});
+	
+	const appState = useSelector(state => state);
 	
 	const [urlRequest,setUrlRequest] = useState({
 		url:"",
@@ -25,34 +25,17 @@ function App() {
 	//HELPER FUNCTIONS
 	
 	const setError = (error) => {
-		setState((state) => {
-			let tempState = {
-				...state,
-				error:error
-			}
-			saveToStorage(tempState);
-			return tempState;
-		})
+
 	}
 	
 	const setLoading = (loading) => {
-		setState((state) => {
-			return {
-				...state,
-				loading:loading,
-				error:""
-			}
-		})
+
 	}
 	
 	const clearState = () => {
 		setState((state) => {
 			let tempState = {
-				list:[],
-				isLogged:false,
-				loading:false,
-				error:"",
-				token:""
+				list:[]
 			}
 			saveToStorage(tempState);
 			return tempState;
@@ -65,15 +48,7 @@ function App() {
 	
 	//USEEFFECT
 	
-	useEffect(() =>	{
-		if(sessionStorage.getItem("state")) {
-			let tempState = JSON.parse(sessionStorage.getItem("state"));
-			setState(tempState)
-			if(tempState.isLogged) {
-				getList(tempState.token);
-			}
-		}
-	} ,[]);
+
 	
 	useEffect(() => {
 		
@@ -185,47 +160,15 @@ function App() {
 	
 	//LOGIN API
 	
-	const register = (user) => {
-		setUrlRequest({
-			url:"/register",
-			request:{
-				method:"POST",
-				headers:{"Content-Type":"application/json"
-				},
-				body:JSON.stringify(user)
-			},
-			action:"register"
-		})
-	}
+
 	
-	const login = (user) => {
-		setUrlRequest({
-			url:"/login",
-			request:{
-				method:"POST",
-				headers:{"Content-Type":"application/json"
-				},
-				body:JSON.stringify(user)
-			},
-			action:"login"
-		})
-	}
+
 	
-	const logout = (user) => {
-		setUrlRequest({
-			url:"/logout",
-			request:{
-				method:"POST",
-				headers:{"Content-Type":"application/json",
-						 "token":state.token}
-			},
-			action:"logout"
-		})
-	}	
+	
 	//SHOPPING API
 	
 	const getList = (token) => {
-		let tempToken = state.token;
+		let tempToken = appState.token;
 		if(token) {
 			tempToken = token
 		}
@@ -245,7 +188,7 @@ function App() {
 			request:{
 				method:"POST",
 				headers:{"Content-Type":"application/json",
-						"token":state.token},
+						"token":appState.token},
 				body:JSON.stringify(item)
 			},
 			action:"additem"
@@ -257,7 +200,7 @@ function App() {
 			url:"/api/shopping/"+id,
 			request:{
 				method:"DELETE",
-				headers:{"token":state.token}
+				headers:{"token":appState.token}
 			},
 			action:"removeitem"
 		})
@@ -270,7 +213,7 @@ function App() {
 				method:"PUT",
 				headers:{
 					"Content-Type":"application/json",
-					"token":state.token
+					"token":appState.token
 				},
 				body:JSON.stringify(item)
 			},
@@ -281,17 +224,17 @@ function App() {
 	//RENDERING
 	
 	let messageArea = <h3> </h3>
-	if(state.loading) {
+	if(appState.loading) {
 		messageArea = <h3>Loading ...</h3>
 	}
-	if(state.error) {
+	if(appState.error) {
 		messageArea = <h3>{state.error}</h3>
 	}
 	let tempRender = <Routes>
-						<Route exact path="/" element={<LoginPage register={register} login={login} setError={setError}/>}/>
+						<Route exact path="/" element={<LoginPage />}/>
 						<Route path="*" element={<Navigate to="/"/>}/>
 					</Routes>
-	if(state.isLogged) {
+	if(appState.isLogged) {
 		tempRender = <Routes>
 				<Route path="/list" element={<ShoppingList list={state.list} removeItem={removeItem} editItem={editItem}/>}/>
 				<Route path="/form" element={<ShoppingForm addItem={addItem}/>}/>
@@ -301,7 +244,7 @@ function App() {
 	
 	return (
 		<div className="App">
-			<Navbar logout={logout} isLogged={state.isLogged}/>
+			<Navbar />
 			{messageArea}
 			<hr/>
 			{tempRender}
