@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import useAction from '../hooks/useAction';
 
 const LoginPage = (props) => {
 
@@ -6,6 +7,8 @@ const LoginPage = (props) => {
 		username:"",
 		password:""
 	})
+	
+	const {register} = useAction();
 	
 	const onChange = (event) => {
 		setState((state) => {
@@ -26,7 +29,7 @@ const LoginPage = (props) => {
 			...state
 		}
 		if(event.target.name === "register") {
-			props.register(user);
+			register(user);
 		} else {
 			props.login(user);
 		}
