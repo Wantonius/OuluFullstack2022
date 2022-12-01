@@ -8,7 +8,7 @@ const LoginPage = (props) => {
 		password:""
 	})
 	
-	const {register} = useAction();
+	const {register,login} = useAction();
 	
 	const onChange = (event) => {
 		setState((state) => {
@@ -22,7 +22,6 @@ const LoginPage = (props) => {
 	const onSubmit = (event) => {
 		event.preventDefault();
 		if(state.username.length < 4 || state.password.length < 8) {
-			props.setError("Username must be atleast 4 and password 8 characters long.");
 			return;
 		}
 		let user = {
@@ -31,7 +30,7 @@ const LoginPage = (props) => {
 		if(event.target.name === "register") {
 			register(user);
 		} else {
-			props.login(user);
+			login(user);
 		}
 	}
 	return(
