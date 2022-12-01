@@ -63,10 +63,37 @@ const useAction = () => {
 							type:actionConstants.LOGOUT_SUCCESS
 						})
 						return;
+					case "getlist":
+						let list = await response.json();
+						if(!list) {
+							dispatch({
+								type:actionConstants.FETCH_LIST_FAILED,
+								error:"Failed to parse shopping information"
+							})
+							return;
+						}
+						dispatch({
+							type:actionConstants.FETCH_LIST_SUCCESS,
+							list:list
+						})
+						return;
+					case "add":
+						dispatch({
+							type:actionConstants.ADD_ITEM_SUCCESS
+						})
+						getList();
+						return;
 					default:
 						return;
 				}
 			} else {
+				if(response.status === 403) {
+					dispatch({
+						type:actionConstants.LOGOUT_FAILED,
+						error:"Your session has expired. Logging you out."
+					})
+					return;
+				}
 				switch(state.action) {
 					case "register":
 						if(response.status === 409) {
@@ -91,6 +118,18 @@ const useAction = () => {
 						dispatch({
 							type:actionConstants.LOGOUT_FAILED,
 							error:"Server responded with an error. Logging you out."
+						})
+						return;
+					case "getlist":
+						dispatch({
+							type:actionConstants.FETCH_LIST_FAILED,
+							error:"Fetch shopping list failed. Server responded with a status "+response.status+" "+response.statusText
+						})
+						return;
+					case "add":
+						dispatch({
+							type:actionConstants.ADD_ITEM_FAILED,
+							error:"Failed to add new item. Server responded with a status "+response.status+" "+response.statusText
 						})
 						return;
 					default:
@@ -139,7 +178,31 @@ const useAction = () => {
 		})
 	}
 	
-	return {register,login,logout};
+	const getList = () => {
+		setState({
+			url:"/api/shopping",
+			request:{
+				method:"GET",
+				headers:{"token":token}
+			},
+			action:"getlist"
+		})
+	}
+	
+	const add = (item) => {
+		setState({
+			url:"/api/shopping",
+			request:{
+				method:"POST",
+				headers:{"Content-Type":"application/json",
+				"token":token},
+				body:JSON.stringify(item)
+			},
+			action:"add"
+		})
+	}
+	
+	return {register,login,logout,getList,add};
 }
 
 export default useAction;

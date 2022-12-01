@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import {useEffect,useState} from 'react';
+import {useEffect} from 'react';
 import ShoppingForm from './components/ShoppingForm';
 import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
@@ -11,7 +11,13 @@ import useAppState from './hooks/useAppState';
 function App() {
 
 	const {isLogged,error,loading} = useAppState();
+	const {getList} = useAction();
 	
+	useEffect(() => {
+		if(isLogged) {
+			getList();
+		}
+	},[isLogged])
 	//RENDERING
 	
 	let messageArea = <h3> </h3>
