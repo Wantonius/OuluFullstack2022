@@ -58,6 +58,11 @@ const useAction = () => {
 							token:data.token
 						})
 						return;
+					case "logout":
+						dispatch({
+							type:actionConstants.LOGOUT_SUCCESS
+						})
+						return;
 					default:
 						return;
 				}
@@ -81,6 +86,12 @@ const useAction = () => {
 							type:actionConstants.LOGIN_FAILED,
 							error:"Login failed. Server responded with a status "+response.status+" "+response.statusText
 						})	
+						return;
+					case "logout":
+						dispatch({
+							type:actionConstants.LOGOUT_FAILED,
+							error:"Server responded with an error. Logging you out."
+						})
 						return;
 					default:
 						return;
@@ -117,7 +128,18 @@ const useAction = () => {
 		})
 	}
 	
-	return {register,login};
+	const logout = () => {
+		setState({
+			url:"/logout",
+			request:{
+				method:"POST",
+				headers:{"token":token}
+			},
+			action:"logout"
+		})
+	}
+	
+	return {register,login,logout};
 }
 
 export default useAction;
