@@ -8,6 +8,7 @@ import useAppState from '../hooks/useAppState';
 const ShoppingList = (props) => {
 	
 	const {list} = useAppState();
+	const {remove,edit} = useAction();
 	
 	const [state,setState] = useState({
 		editIndex:-1,
@@ -36,12 +37,12 @@ const ShoppingList = (props) => {
 	}
 	
 	const removeItem = (id) => {
-		props.removeItem(id);
+		remove(id);
 		changeMode("cancel");
 	}
 	
 	const editItem = (item) => {
-		props.editItem(item);
+		edit(item);
 		changeMode("cancel");
 	}
 
