@@ -45,7 +45,7 @@ const loginReducer:Reducer<LoginState,AnyAction> = (state:LoginState = initialSt
 				error:"Register success!"
 			}
 			saveToStorage(tempState);
-			return;
+			return tempState;
 		case actionConstants.LOGIN_SUCCESS:
 			tempState = {
 				isLogged:true,
