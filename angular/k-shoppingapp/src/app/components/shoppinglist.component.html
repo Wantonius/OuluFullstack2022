@@ -1,0 +1,16 @@
+<table class="table table-striped">
+	<thead>
+		<th>Type</th>
+		<th>Count</th>
+		<th>Price</th>
+		<th>Remove</th>
+	</thead>
+	<tbody>
+		<tr *ngFor="let item of list">
+			<td>{{item.type}}</td>
+			<td>{{item.count}}</td>
+			<td>{{item.price}}</td>
+			<td><button class="btn btn-danger" (click)="removeItem(item.id)">Remove</button></td>
+		</tr>
+	</tbody>
+</table>

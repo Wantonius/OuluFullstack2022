@@ -7,13 +7,20 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 
+import {ShoppingService} from './services/shopping.service';
 import {LoginService} from './services/login.service';
 import {LoginPage} from './components/loginpage.component';
+import {ShoppingForm} from './components/shoppingform.component';
+import {ShoppingList} from './components/shoppinglist.component';
+import {Navbar} from './components/navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-	LoginPage
+	LoginPage,
+	ShoppingForm,
+	ShoppingList,
+	Navbar
   ],
   imports: [
     BrowserModule,
@@ -22,7 +29,7 @@ import {LoginPage} from './components/loginpage.component';
 	FormsModule,
 	HttpClientModule
   ],
-  providers: [LoginService],
+  providers: [LoginService,ShoppingService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
