@@ -96,7 +96,7 @@ const StateProvider = (props) => {
 			<ActionContext.Provider value={{dispatch:dispatch}}>
 				{props.children}
 			</ActionContext.Provider>
-		</AppStateContext>
+		</AppStateContext.Provider>
 		
 	)
 }
